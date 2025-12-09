@@ -147,13 +147,13 @@ do Contratante.
       clausula: m.clausula_ia,
     }));
 
-    const { error } = await supabase.from('contratos').insert({
+    const { error } = await supabase.from('contratos').insert([{
       cliente_id: selectedCliente,
       titulo: `Contrato ${cliente?.nome} - R$ ${valorTotal.toFixed(2)}`,
-      modulos_json: modulosJson,
+      modulos_json: modulosJson as any,
       valor_total: valorTotal,
       texto_contrato: previewText,
-    });
+    }]);
 
     setSaving(false);
 
