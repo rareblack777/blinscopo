@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Users, Package, FileText, History, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Package, FileText, History, Settings, LogOut } from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,6 +15,7 @@ const navItems = [
   { path: '/modulos', label: 'Módulos', icon: Package },
   { path: '/novo-contrato', label: 'Novo Contrato', icon: FileText },
   { path: '/contratos', label: 'Histórico', icon: History },
+  { path: '/configuracoes', label: 'Config', icon: Settings },
 ];
 
 export function Layout({ children }: LayoutProps) {

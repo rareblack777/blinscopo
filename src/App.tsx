@@ -11,6 +11,7 @@ import Clientes from "./pages/Clientes";
 import Modulos from "./pages/Modulos";
 import NovoContrato from "./pages/NovoContrato";
 import Contratos from "./pages/Contratos";
+import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ function AppRoutes() {
       <Route path="/modulos" element={<ProtectedRoute><Modulos /></ProtectedRoute>} />
       <Route path="/novo-contrato" element={<ProtectedRoute><NovoContrato /></ProtectedRoute>} />
       <Route path="/contratos" element={<ProtectedRoute><Contratos /></ProtectedRoute>} />
+      <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

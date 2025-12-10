@@ -17,10 +17,16 @@ import { toast } from 'sonner';
 import { FileText, Copy, Check } from 'lucide-react';
 import type { Cliente, ModuloEscopo, ModuloContratoItem } from '@/types/database';
 
+interface Configuracoes {
+  nome_prestador: string | null;
+  empresa: string | null;
+}
+
 export default function NovoContrato() {
   const navigate = useNavigate();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [modulos, setModulos] = useState<ModuloEscopo[]>([]);
+  const [configuracoes, setConfiguracoes] = useState<Configuracoes | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -32,13 +38,15 @@ export default function NovoContrato() {
 
   useEffect(() => {
     async function fetchData() {
-      const [clientesRes, modulosRes] = await Promise.all([
+      const [clientesRes, modulosRes, configRes] = await Promise.all([
         supabase.from('clientes').select('*').order('nome'),
         supabase.from('modulos_escopo').select('*').order('titulo'),
+        supabase.from('configuracoes').select('nome_prestador, empresa').maybeSingle(),
       ]);
 
       setClientes(clientesRes.data || []);
       setModulos(modulosRes.data || []);
+      setConfiguracoes(configRes.data);
       setLoading(false);
     }
 
@@ -60,6 +68,16 @@ export default function NovoContrato() {
     const valorTotal = modulosSelecionados.reduce((sum, m) => sum + Number(m.valor_padrao), 0);
     const dataEmissao = new Date().toLocaleDateString('pt-BR');
 
+    // Determinar nome do prestador
+    let nomePrestador = '[Configure seu nome em Configurações]';
+    if (configuracoes?.empresa && configuracoes?.nome_prestador) {
+      nomePrestador = `${configuracoes.empresa} (${configuracoes.nome_prestador})`;
+    } else if (configuracoes?.empresa) {
+      nomePrestador = configuracoes.empresa;
+    } else if (configuracoes?.nome_prestador) {
+      nomePrestador = configuracoes.nome_prestador;
+    }
+
     const escopoDetalhado = modulosSelecionados
       .map((m) => {
         let text = `\n━━━ MÓDULO: ${m.titulo} (R$ ${Number(m.valor_padrao).toFixed(2)}) ━━━\n`;
@@ -76,7 +94,7 @@ export default function NovoContrato() {
 ══════════════════════════════════════════════════════════════════
 
 CONTRATANTE (CLIENTE): ${cliente.nome}
-CONTRATADO (PRESTADOR): [SEU NOME OU EMPRESA]
+CONTRATADO (PRESTADOR): ${nomePrestador}
 
 DATA DE EMISSÃO: ${dataEmissao}
 
@@ -109,7 +127,7 @@ do Contratante.
 `.trim();
 
     setPreviewText(contratoTexto);
-  }, [selectedCliente, selectedModulos, clientes, modulos]);
+  }, [selectedCliente, selectedModulos, clientes, modulos, configuracoes]);
 
   function toggleModulo(id: string) {
     const newSet = new Set(selectedModulos);
