@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { FileText, Copy, Check, Download, Share2 } from 'lucide-react';
-import jsPDF from 'jspdf';
+import jsPDF from 'jsPDF';
 import type { Cliente, ModuloEscopo, ModuloContratoItem } from '@/types/database';
 
 interface Configuracoes {
@@ -90,9 +90,9 @@ export default function NovoContrato() {
       .join('\n');
 
     const contratoTexto = `
-══════════════════════════════════════════════════════════════════
-    MICRO-CONTRATO DE PRESTAÇÃO DE SERVIÇOS PROFISSIONAIS
-══════════════════════════════════════════════════════════════════
+============================================================
+           MICRO-CONTRATO DE PRESTAÇÃO DE SERVIÇOS PROFISSIONAIS
+============================================================
 
 CONTRATANTE (CLIENTE): ${cliente.nome}
 CONTRATADO (PRESTADOR): ${nomePrestador}
@@ -100,23 +100,17 @@ CONTRATADO (PRESTADOR): ${nomePrestador}
 DATA DE EMISSÃO: ${dataEmissao}
 
 
-╔══════════════════════════════════════════════════════════════════╗
-║  I. INFORMAÇÕES GERAIS E VALOR                                   ║
-╚══════════════════════════════════════════════════════════════════╝
+--- I. INFORMAÇÕES GERAIS E VALOR ---
 
 O presente Micro-Contrato é regido pelo escopo modular detalhado abaixo.
 O valor total acordado para os serviços é de: R$ ${valorTotal.toFixed(2)}
 
 
-╔══════════════════════════════════════════════════════════════════╗
-║  II. DETALHAMENTO DE ESCOPO E CLÁUSULAS JURÍDICAS                ║
-╚══════════════════════════════════════════════════════════════════╝
+--- II. DETALHAMENTO DE ESCOPO E CLÁUSULAS JURÍDICAS ---
 ${escopoDetalhado}
 
 
-╔══════════════════════════════════════════════════════════════════╗
-║  III. CLÁUSULA DE ENCERRAMENTO                                   ║
-╚══════════════════════════════════════════════════════════════════╝
+--- III. CLÁUSULA DE ENCERRAMENTO ---
 
 Este documento substitui qualquer acordo prévio, garantindo que o
 Contratado possua amparo contratual limitado ao escopo aqui definido.
@@ -124,11 +118,11 @@ Contratado possua amparo contratual limitado ao escopo aqui definido.
 A formalização deste contrato ocorre mediante o primeiro pagamento
 do Contratante.
 
-══════════════════════════════════════════════════════════════════
+============================================================
 `.trim();
 
     setPreviewText(contratoTexto);
-  }, [selectedCliente, selectedModulos, clientes, modulos, configuracoes]);
+  }, [selectedCliente, selectedModulos, clientes, modulos, configuracoes]);
 
   function toggleModulo(id: string) {
     const newSet = new Set(selectedModulos);
@@ -175,11 +169,26 @@ do Contratante.
     toast.success('PDF baixado!');
   }
 
-  function shareWhatsApp() {
-    const encodedText = encodeURIComponent(previewText);
-    const whatsappUrl = `https://wa.me/?text=${encodedText}`;
-    window.open(whatsappUrl, '_blank');
-  }
+  function handleShare() {
+    const shareUrl = 'https://blinscopo.lovable.app/'; 
+    
+    const shareData = {
+        title: 'Micro-Contrato Blinscopo',
+        text: 'Segue o Micro-Contrato Blinscopo para análise e aprovação:',
+        url: shareUrl, 
+    };
+
+    if (navigator.share) {
+        navigator.share(shareData)
+            .then(() => toast.success('Conteúdo compartilhado com sucesso!'))
+            .catch((error) => console.error('Erro ao compartilhar:', error));
+    } else {
+        const encodedText = encodeURIComponent(shareData.text + "\n\n" + previewText);
+        const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+        window.open(whatsappUrl, '_blank');
+        toast.info('Abrindo WhatsApp...');
+    }
+}
 
   async function handleSave() {
     if (!selectedCliente || selectedModulos.size === 0) {
@@ -359,9 +368,9 @@ do Contratante.
                 <Download className="h-4 w-4 mr-2" />
                 PDF
               </Button>
-              <Button variant="outline" onClick={shareWhatsApp}>
+              <Button variant="outline" onClick={handleShare}>
                 <Share2 className="h-4 w-4 mr-2" />
-                WhatsApp
+                Compartilhar
               </Button>
             </div>
           )}
