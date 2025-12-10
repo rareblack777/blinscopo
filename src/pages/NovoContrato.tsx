@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { FileText, Copy, Check, Download, Share2 } from 'lucide-react';
-import jsPDF from 'jsPDF';
+import jsPDF from 'jspdf';
 import type { Cliente, ModuloEscopo, ModuloContratoItem } from '@/types/database';
 
 interface Configuracoes {
