@@ -14,7 +14,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { FileText, Copy, Check } from 'lucide-react';
+import { FileText, Copy, Check, Download, Share2 } from 'lucide-react';
+import jsPDF from 'jspdf';
 import type { Cliente, ModuloEscopo, ModuloContratoItem } from '@/types/database';
 
 interface Configuracoes {
@@ -144,6 +145,40 @@ do Contratante.
     setCopied(true);
     toast.success('Contrato copiado!');
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  function downloadPDF() {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    const maxWidth = pageWidth - margin * 2;
+    
+    doc.setFont('helvetica');
+    doc.setFontSize(10);
+    
+    const lines = doc.splitTextToSize(previewText, maxWidth);
+    let y = 20;
+    const lineHeight = 5;
+    
+    for (const line of lines) {
+      if (y > 280) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.text(line, margin, y);
+      y += lineHeight;
+    }
+    
+    const cliente = clientes.find((c) => c.id === selectedCliente);
+    const fileName = `contrato-${cliente?.nome?.replace(/\s+/g, '-').toLowerCase() || 'novo'}.pdf`;
+    doc.save(fileName);
+    toast.success('PDF baixado!');
+  }
+
+  function shareWhatsApp() {
+    const encodedText = encodeURIComponent(previewText);
+    const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+    window.open(whatsappUrl, '_blank');
   }
 
   async function handleSave() {
@@ -316,9 +351,19 @@ do Contratante.
           </Card>
 
           {previewText && (
-            <Button className="w-full" onClick={handleSave} disabled={saving}>
-              {saving ? 'Salvando...' : 'Salvar Contrato'}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button className="flex-1" onClick={handleSave} disabled={saving}>
+                {saving ? 'Salvando...' : 'Salvar Contrato'}
+              </Button>
+              <Button variant="secondary" onClick={downloadPDF}>
+                <Download className="h-4 w-4 mr-2" />
+                PDF
+              </Button>
+              <Button variant="outline" onClick={shareWhatsApp}>
+                <Share2 className="h-4 w-4 mr-2" />
+                WhatsApp
+              </Button>
+            </div>
           )}
         </div>
       </div>
