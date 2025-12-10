@@ -28,7 +28,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-14">
             <Link to="/" className="font-semibold tracking-tight">
-              Micro-Apoio Pro
+              Blinscopo
             </Link>
             
             <div className="flex items-center gap-4">

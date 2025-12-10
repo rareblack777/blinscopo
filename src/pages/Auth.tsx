@@ -28,7 +28,7 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Micro-Apoio Pro</CardTitle>
+          <CardTitle className="text-xl">Blinscopo</CardTitle>
           <CardDescription>
             Gestão de contratos modulares
           </CardDescription>
