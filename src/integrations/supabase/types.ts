@@ -44,6 +44,45 @@ export type Database = {
         }
         Relationships: []
       }
+      configuracoes: {
+        Row: {
+          cnpj_cpf: string | null
+          created_at: string
+          email: string | null
+          empresa: string | null
+          endereco: string | null
+          id: string
+          nome_prestador: string | null
+          telefone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cnpj_cpf?: string | null
+          created_at?: string
+          email?: string | null
+          empresa?: string | null
+          endereco?: string | null
+          id?: string
+          nome_prestador?: string | null
+          telefone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cnpj_cpf?: string | null
+          created_at?: string
+          email?: string | null
+          empresa?: string | null
+          endereco?: string | null
+          id?: string
+          nome_prestador?: string | null
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       contratos: {
         Row: {
           cliente_id: string
