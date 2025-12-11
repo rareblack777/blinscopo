@@ -55,10 +55,14 @@ export default function Configuracoes() {
   }, []);
 
   async function handleSave() {
-    if (!config.nome_prestador.trim() && !config.empresa.trim()) {
-      toast.error('Preencha pelo menos o nome ou empresa');
-      return;
-    }
+    if (!config.nome_prestador.trim()) {
+  toast.error('O Nome do Prestador é obrigatório para a validade do contrato.');
+  return;
+}
+if (!config.cnpj_cpf.trim()) {
+  toast.error('O CPF/CNPJ é obrigatório para a validade do contrato.');
+  return;
+}
 
     setSaving(true);
 
@@ -145,7 +149,7 @@ export default function Configuracoes() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="empresa">Empresa (opcional)</Label>
+              <Label htmlFor="empresa">Empresa</Label>
               <Input
                 id="empresa"
                 value={config.empresa}
@@ -157,7 +161,7 @@ export default function Configuracoes() {
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="cnpj_cpf">CPF/CNPJ (opcional)</Label>
+              <Label htmlFor="cnpj_cpf">CPF/CNPJ</Label>
               <Input
                 id="cnpj_cpf"
                 value={config.cnpj_cpf}
@@ -167,7 +171,7 @@ export default function Configuracoes() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="telefone">Telefone (opcional)</Label>
+              <Label htmlFor="telefone">Telefone</Label>
               <Input
                 id="telefone"
                 value={config.telefone}
