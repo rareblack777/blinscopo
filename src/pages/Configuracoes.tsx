@@ -139,7 +139,7 @@ if (!config.cnpj_cpf.trim()) {
         <div className="space-y-4">
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="nome_prestador">Nome do Prestador</Label>
+              <Label htmlFor="nome_prestador">Nome do Prestador <span className="text-red-500">*</span></Label>
               <Input
                 id="nome_prestador"
                 value={config.nome_prestador}
@@ -149,7 +149,7 @@ if (!config.cnpj_cpf.trim()) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="empresa">Empresa</Label>
+              <Label htmlFor="empresa">Empresa <span className="text-red-500">*</span></Label>
               <Input
                 id="empresa"
                 value={config.empresa}
@@ -161,7 +161,7 @@ if (!config.cnpj_cpf.trim()) {
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="cnpj_cpf">CPF/CNPJ</Label>
+              <Label htmlFor="cnpj_cpf">CPF/CNPJ <span className="text-red-500">*</span></Label>
               <Input
                 id="cnpj_cpf"
                 value={config.cnpj_cpf}
@@ -171,7 +171,7 @@ if (!config.cnpj_cpf.trim()) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="telefone">Telefone</Label>
+              <Label htmlFor="telefone">Telefone <span className="text-red-500">*</span></Label>
               <Input
                 id="telefone"
                 value={config.telefone}
