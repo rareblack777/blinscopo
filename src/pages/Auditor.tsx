@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { ShieldAlert, Send, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { ShieldAlert, CheckCircle2, AlertTriangle } from 'lucide-react';
 import type { Contrato, Cliente } from '@/types/database';
 
 type ContratoComCliente = Contrato & { clientes: Cliente };
@@ -27,7 +27,7 @@ export default function Auditor() {
   const [selectedContratoId, setSelectedContratoId] = useState<string>('');
   const [clientMessage, setClientMessage] = useState('');
   
-  // Resultado da IA (Mockado por enquanto, vamos conectar depois)
+  // Resultado da IA
   const [analise, setAnalise] = useState<{
     status: 'safe' | 'danger' | 'warning';
     message: string;
@@ -59,26 +59,47 @@ export default function Auditor() {
     setAnalyzing(true);
     setAnalise(null);
 
-    // TODO: AQUI VAI ENTRAR A CHAMADA REAL PARA A IA (EDGE FUNCTION)
-    // Por enquanto, simulamos um "pensamento" para testar a UI
-    setTimeout(() => {
+    try {
+      // 1. Pega o texto do contrato selecionado
       const contrato = contratos.find(c => c.id === selectedContratoId);
       
-      // Simulação simples: se a mensagem for curta, diz que é perigoso
-      const mockResult = {
-        status: 'danger' as const,
-        message: `ALERTA DE ESCOPO: O pedido do cliente parece exceder o contrato "${contrato?.titulo}".`,
-        suggestion: "Resposta sugerida: 'Oi fulano, esse pedido é ótimo, mas foge do escopo contratado (item 2.1). Posso orçar como um adicional?'"
-      };
-      
-      setAnalise(mockResult);
+      if (!contrato?.texto_contrato) {
+        toast.error('O contrato selecionado não possui texto salvo para análise.');
+        setAnalyzing(false);
+        return;
+      }
+
+      // 2. Chama a IA de verdade (Edge Function)
+      const { data, error } = await supabase.functions.invoke('audit-scope', {
+        body: {
+          contratoTexto: contrato.texto_contrato,
+          mensagemCliente: clientMessage,
+        },
+      });
+
+      if (error) throw error;
+
+      // 3. Atualiza com o resultado real
+      setAnalise(data);
+      toast.success('Análise da IA concluída!');
+
+    } catch (error) {
+      console.error('Erro na auditoria:', error);
+      toast.error('Falha ao conectar com o Auditor IA. Verifique se a Edge Function está ativa.');
+    } finally {
       setAnalyzing(false);
-      toast.success('Análise concluída!');
-    }, 2000);
+    }
+  }
+
+  async function copyResponse() {
+    if (analise?.suggestion) {
+      await navigator.clipboard.writeText(analise.suggestion);
+      toast.success('Resposta copiada para a área de transferência');
+    }
   }
 
   if (loading) {
-    return <Layout><div>Carregando auditor...</div></Layout>;
+    return <Layout><div className="p-8 text-muted-foreground">Carregando auditor...</div></Layout>;
   }
 
   return (
@@ -94,9 +115,8 @@ export default function Auditor() {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* LADO ESQUERDO: O CENÁRIO */}
+        {/* LADO ESQUERDO: O CENÁRIO (INPUTS) */}
         <div className="space-y-6">
-          
           <Card className="p-6 space-y-4">
             <div className="space-y-2">
               <Label>1. Qual contrato devemos defender?</Label>
@@ -136,7 +156,7 @@ export default function Auditor() {
           </Card>
         </div>
 
-        {/* LADO DIREITO: O VEREDITO */}
+        {/* LADO DIREITO: O VEREDITO (OUTPUT) */}
         <div className="space-y-6">
           {analise ? (
             <Card className={`p-6 border-l-4 ${
@@ -145,9 +165,9 @@ export default function Auditor() {
             }`}>
               <div className="flex items-start gap-4">
                 {analise.status === 'danger' ? (
-                  <AlertTriangle className="h-6 w-6 text-red-600 mt-1" />
+                  <AlertTriangle className="h-6 w-6 text-red-600 mt-1 shrink-0" />
                 ) : (
-                  <CheckCircle2 className="h-6 w-6 text-green-600 mt-1" />
+                  <CheckCircle2 className="h-6 w-6 text-green-600 mt-1 shrink-0" />
                 )}
                 <div className="space-y-4 w-full">
                   <div>
@@ -156,9 +176,9 @@ export default function Auditor() {
                   </div>
                   
                   <div className="bg-background p-4 rounded-md border border-dashed">
-                    <Label className="text-xs uppercase text-muted-foreground mb-2 block">Sugestão de Resposta Diplomática</Label>
-                    <p className="text-sm italic">"{analise.suggestion}"</p>
-                    <Button variant="ghost" size="sm" className="mt-2 h-8" onClick={() => navigator.clipboard.writeText(analise.suggestion)}>
+                    <Label className="text-xs uppercase text-muted-foreground mb-2 block">Sugestão de Resposta</Label>
+                    <p className="text-sm italic mb-3">"{analise.suggestion}"</p>
+                    <Button variant="outline" size="sm" onClick={copyResponse}>
                       Copiar Resposta
                     </Button>
                   </div>
