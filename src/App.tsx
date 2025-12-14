@@ -12,6 +12,7 @@ import Modulos from "./pages/Modulos";
 import NovoContrato from "./pages/NovoContrato";
 import Contratos from "./pages/Contratos";
 import Configuracoes from "./pages/Configuracoes";
+import Auditor from "./pages/Auditor"; // <--- 1. Importação Nova
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,10 @@ function AppRoutes() {
       <Route path="/modulos" element={<ProtectedRoute><Modulos /></ProtectedRoute>} />
       <Route path="/novo-contrato" element={<ProtectedRoute><NovoContrato /></ProtectedRoute>} />
       <Route path="/contratos" element={<ProtectedRoute><Contratos /></ProtectedRoute>} />
+      
+      {/* 2. Rota Nova Protegida */}
+      <Route path="/auditor" element={<ProtectedRoute><Auditor /></ProtectedRoute>} />
+      
       <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
