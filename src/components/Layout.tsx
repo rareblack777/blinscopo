@@ -3,19 +3,29 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Users, Package, FileText, History, Settings, LogOut } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Users, 
+  Package, 
+  FileText, 
+  History, 
+  Settings, 
+  LogOut, 
+  ShieldAlert // <--- 1. NOVO ÍCONE IMPORTADO
+} from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/modulos', label: 'Módulos', icon: Package },
-  { path: '/clientes', label: 'Clientes', icon: Users },
-  { path: '/novo-contrato', label: 'Novo Contrato', icon: FileText },
-  { path: '/configuracoes', label: 'Config', icon: Settings },
-  { path: '/contratos', label: 'Histórico', icon: History },
+  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/novo-contrato', label: 'Novo Contrato', icon: FileText },
+  { path: '/auditor', label: 'Auditor IA', icon: ShieldAlert }, // <--- 2. NOVA ABA (Destaque)
+  { path: '/contratos', label: 'Histórico', icon: History },
+  { path: '/modulos', label: 'Módulos', icon: Package },
+  { path: '/clientes', label: 'Clientes', icon: Users },
+  { path: '/configuracoes', label: 'Config', icon: Settings },
 ];
 
 export function Layout({ children }: LayoutProps) {
@@ -28,10 +38,11 @@ export function Layout({ children }: LayoutProps) {
       <header className="border-b bg-card">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-14">
-            <Link to="/" className="font-semibold tracking-tight">
+            <Link to="/" className="font-semibold tracking-tight flex items-center gap-2">
+              <ShieldAlert className="h-5 w-5 text-primary" /> {/* Branding sutil no logo */}
               Blinscopo
             </Link>
-            
+
             <div className="flex items-center gap-4">
               <span className="text-sm text-muted-foreground hidden sm:block">
                 {user?.email}
@@ -45,21 +56,21 @@ export function Layout({ children }: LayoutProps) {
       </header>
 
       {/* Navigation */}
-      <nav className="border-b bg-card/50">
+      <nav className="border-b bg-card/50 sticky top-0 z-10 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center gap-1 overflow-x-auto py-2">
+          <div className="flex items-center gap-1 overflow-x-auto py-2 no-scrollbar">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               const Icon = item.icon;
-              
+
               return (
                 <Link
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap",
+                    "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap",
                     isActive
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent"
                   )}
                 >
@@ -73,7 +84,7 @@ export function Layout({ children }: LayoutProps) {
       </nav>
 
       {/* Main Content */}
-      <main className="page-container animate-fade-in">
+      <main className="page-container animate-fade-in py-6 max-w-5xl mx-auto px-4 sm:px-6">
         {children}
       </main>
     </div>
