@@ -70,7 +70,7 @@ export default function Auditor() {
       }
 
       // 2. Chama a IA de verdade (Edge Function)
-      const { data, error } = await supabase.functions.invoke('audit-scope', {
+      const { data, error } = await supabase.functions.invoke('AuditorIA', {
         body: {
           contratoTexto: contrato.texto_contrato,
           mensagemCliente: clientMessage,
