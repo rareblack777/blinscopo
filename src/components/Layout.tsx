@@ -19,10 +19,10 @@ interface LayoutProps {
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/configuracoes', label: 'Dados', icon: Settings },
   { path: '/clientes', label: 'Clientes', icon: Users },
   { path: '/modulos', label: 'Módulos', icon: Package },
   { path: '/novo-contrato', label: 'Novo Contrato', icon: FileText },
-  { path: '/configuracoes', label: 'Config', icon: Settings },
   { path: '/contratos', label: 'Histórico', icon: History },
 ];
 
