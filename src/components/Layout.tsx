@@ -21,7 +21,6 @@ interface LayoutProps {
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/novo-contrato', label: 'Novo Contrato', icon: FileText },
-  { path: '/auditor', label: 'Auditor IA', icon: ShieldAlert }, // <--- 2. NOVA ABA (Destaque)
   { path: '/contratos', label: 'Histórico', icon: History },
   { path: '/modulos', label: 'Módulos', icon: Package },
   { path: '/clientes', label: 'Clientes', icon: Users },
