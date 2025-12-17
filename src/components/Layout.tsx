@@ -10,8 +10,7 @@ import {
   FileText, 
   History, 
   Settings, 
-  LogOut, 
-  ShieldAlert // <--- 1. NOVO ÍCONE IMPORTADO
+  LogOut
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -20,10 +19,10 @@ interface LayoutProps {
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/configuracoes', label: 'Dados', icon: Settings },
   { path: '/clientes', label: 'Clientes', icon: Users },
   { path: '/modulos', label: 'Módulos', icon: Package },
   { path: '/novo-contrato', label: 'Novo Contrato', icon: FileText },
-  { path: '/configuracoes', label: 'Config', icon: Settings },
   { path: '/contratos', label: 'Histórico', icon: History },
 ];
 
@@ -37,8 +36,7 @@ export function Layout({ children }: LayoutProps) {
       <header className="border-b bg-card">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-14">
-            <Link to="/" className="font-semibold tracking-tight flex items-center gap-2">
-              <ShieldAlert className="h-5 w-5 text-primary" /> {/* Branding sutil no logo */}
+            <Link to="/" className="font-semibold tracking-tight">
               Blinscopo
             </Link>
 
