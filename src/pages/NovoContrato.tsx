@@ -122,7 +122,7 @@ do Contratante.
 `.trim();
 
     setPreviewText(contratoTexto);
-  }, [selectedCliente, selectedModulos, clientes, modulos, configuracoes]);
+  }, [selectedCliente, selectedModulos, clientes, modulos, configuracoes]);
 
   function toggleModulo(id: string) {
     const newSet = new Set(selectedModulos);
@@ -141,32 +141,178 @@ do Contratante.
     setTimeout(() => setCopied(false), 2000);
   }
 
+  // --- NOVA FUNÇÃO DE PDF PROFISSIONAL ---
   function downloadPDF() {
+    // 1. Prepara os dados
+    const cliente = clientes.find((c) => c.id === selectedCliente);
+    const modulosSelecionados = modulos.filter((m) => selectedModulos.has(m.id));
+    
+    if (!cliente) {
+        toast.error('Selecione um cliente primeiro');
+        return;
+    }
+
+    const valorTotal = modulosSelecionados.reduce((sum, m) => sum + Number(m.valor_padrao), 0);
+
+    // 2. Configura o documento
     const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const margin = 15;
-    const maxWidth = pageWidth - margin * 2;
-    
-    doc.setFont('helvetica');
-    doc.setFontSize(10);
-    
-    const lines = doc.splitTextToSize(previewText, maxWidth);
-    let y = 20;
-    const lineHeight = 5;
-    
-    for (const line of lines) {
-      if (y > 280) {
+    const pageWidth = doc.internal.pageSize.getWidth(); // 210mm
+    const margin = 20;
+    const contentWidth = pageWidth - (margin * 2);
+    let y = 20; // Cursor vertical inicial
+
+    // Função auxiliar para quebrar texto longo
+    const addWrappedText = (text: string, fontSize: number = 10, fontType: string = 'normal', color: string = '#000000') => {
+      doc.setFont('helvetica', fontType);
+      doc.setFontSize(fontSize);
+      doc.setTextColor(color);
+      
+      const lines = doc.splitTextToSize(text, contentWidth);
+      
+      // Verifica se cabe na página
+      if (y + (lines.length * 5) > 280) {
         doc.addPage();
         y = 20;
       }
-      doc.text(line, margin, y);
-      y += lineHeight;
-    }
+      
+      doc.text(lines, margin, y);
+      y += (lines.length * 5) + 2; // Avança o cursor
+    };
+
+    // --- CABEÇALHO ---
+    doc.setFillColor(26, 26, 26); // Cor escura (quase preto)
+    doc.rect(0, 0, pageWidth, 40, 'F'); // Faixa no topo
     
-    const cliente = clientes.find((c) => c.id === selectedCliente);
-    const fileName = `contrato-${cliente?.nome?.replace(/\s+/g, '-').toLowerCase() || 'novo'}.pdf`;
+    doc.setTextColor(255, 255, 255); // Texto branco
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text('MICRO-CONTRATO DE SERVIÇOS', margin, 20);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Documento gerado via Blinscopo', margin, 28);
+
+    y = 55; // Pula a faixa escura
+
+    // --- PARTES ---
+    doc.setTextColor(0, 0, 0); // Volta para preto
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('1. PARTES ENVOLVIDAS', margin, y);
+    y += 8;
+
+    // Caixa cinza para os dados
+    doc.setFillColor(245, 245, 245);
+    doc.setDrawColor(200, 200, 200);
+    doc.rect(margin, y, contentWidth, 35, 'FD');
+    
+    y += 8;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CONTRATANTE (CLIENTE):', margin + 5, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(cliente.nome.toUpperCase(), margin + 60, y);
+    
+    y += 8;
+    doc.setFont('helvetica', 'bold');
+    doc.text('CONTRATADO (PRESTADOR):', margin + 5, y);
+    doc.setFont('helvetica', 'normal');
+    // Pega o nome das configurações ou usa um placeholder
+    const prestadorNome = configuracoes?.empresa || configuracoes?.nome_prestador || 'PRESTADOR DE SERVIÇOS';
+    doc.text(prestadorNome.toUpperCase(), margin + 60, y);
+
+    y += 8;
+    doc.setFont('helvetica', 'bold');
+    doc.text('DATA DE EMISSÃO:', margin + 5, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(new Date().toLocaleDateString('pt-BR'), margin + 60, y);
+
+    y += 25; // Sai da caixa
+
+    // --- ESCOPO (O CORAÇÃO) ---
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('2. ESCOPO E VALORES', margin, y);
+    y += 10;
+
+    modulosSelecionados.forEach((modulo, index) => {
+      // Verifica quebra de página antes de começar um módulo novo
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
+
+      // Título do Módulo
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.text(`2.${index + 1} ${modulo.titulo}`, margin, y);
+      
+      // Valor na direita
+      const valorFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(modulo.valor_padrao));
+      doc.text(valorFormatado, pageWidth - margin - doc.getTextWidth(valorFormatado), y);
+      
+      y += 6;
+
+      // Descrição do serviço
+      if (modulo.descricao) {
+        addWrappedText(modulo.descricao, 10, 'normal', '#444444');
+        y += 2;
+      }
+
+      // Cláusula IA (Destaque)
+      if (modulo.clausula_ia) {
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(0.1);
+        doc.line(margin, y, margin + 2, y + 10); // Linha vertical decorativa
+        
+        doc.setFont('courier', 'normal'); // Fonte monoespaçada para parecer "código/lei"
+        const lines = doc.splitTextToSize(modulo.clausula_ia, contentWidth - 5);
+        
+        if (y + (lines.length * 4) > 280) { doc.addPage(); y = 20; }
+
+        doc.setFontSize(9);
+        doc.setTextColor(80, 80, 80);
+        doc.text(lines, margin + 5, y + 4);
+        y += (lines.length * 4) + 8;
+      }
+
+      y += 5; // Espaço entre módulos
+    });
+
+    // --- TOTAL ---
+    y += 5;
+    doc.setDrawColor(0, 0, 0);
+    doc.line(margin, y, pageWidth - margin, y); // Linha separadora
+    y += 10;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text('VALOR TOTAL:', margin, y);
+    
+    const totalFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorTotal);
+    doc.text(totalFormatado, pageWidth - margin - doc.getTextWidth(totalFormatado), y);
+
+    // --- ASSINATURAS ---
+    // Joga para o final da página (ou cria nova se não couber)
+    if (y < 220) y = 240;
+    else {
+        doc.addPage();
+        y = 240;
+    }
+
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, margin + 70, y); // Linha 1
+    doc.line(pageWidth - margin - 70, y, pageWidth - margin, y); // Linha 2
+
+    y += 5;
+    doc.setFontSize(8);
+    doc.text('CONTRATANTE', margin, y);
+    doc.text('CONTRATADO', pageWidth - margin - 70, y);
+
+    // Salva o arquivo
+    const fileName = `Contrato-${cliente.nome.replace(/\s+/g, '-').toLowerCase()}.pdf`;
     doc.save(fileName);
-    toast.success('PDF baixado!');
+    toast.success('PDF Profissional gerado!');
   }
 
   function handleShare() {
