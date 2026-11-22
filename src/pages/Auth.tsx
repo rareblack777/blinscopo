@@ -61,9 +61,27 @@ function LoginForm({
   isSubmitting: boolean; 
   setIsSubmitting: (v: boolean) => void 
 }) {
-  const { signIn } = useAuth();
+  const { signIn, resetPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error('Digite seu email para recuperar a senha');
+      return;
+    }
+
+    setIsResetting(true);
+    const { error } = await resetPassword(email);
+    setIsResetting(false);
+
+    if (error) {
+      toast.error('Erro ao enviar email de recuperação. Tente novamente.');
+    } else {
+      toast.success('Email de recuperação enviado! Verifique sua caixa de entrada.');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,6 +124,14 @@ function LoginForm({
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? 'Entrando...' : 'Entrar'}
       </Button>
+      <button
+        type="button"
+        onClick={handleForgotPassword}
+        disabled={isResetting}
+        className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors text-center"
+      >
+        {isResetting ? 'Enviando...' : 'Esqueci minha senha'}
+      </button>
     </form>
   );
 }

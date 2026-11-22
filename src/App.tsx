@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 
 import Auth from "./pages/Auth";
+import ResetSenha from "./pages/ResetSenha";
 import Dashboard from "./pages/Dashboard";
 import Clientes from "./pages/Clientes";
 import Modulos from "./pages/Modulos";
@@ -38,6 +39,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/auth" element={<Auth />} />
+      <Route path="/reset-senha" element={<ResetSenha />} />
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/clientes" element={<ProtectedRoute><Clientes /></ProtectedRoute>} />
       <Route path="/modulos" element={<ProtectedRoute><Modulos /></ProtectedRoute>} />
