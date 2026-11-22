@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -19,16 +20,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        if (event === 'PASSWORD_RECOVERY' && window.location.pathname !== '/reset-senha') {
+          navigate('/reset-senha', { replace: true });
+        }
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
       }
     );
+
+    if (window.location.hash.includes('type=recovery') && window.location.pathname !== '/reset-senha') {
+      navigate('/reset-senha' + window.location.hash, { replace: true });
+    }
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
