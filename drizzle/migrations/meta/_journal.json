@@ -8,6 +8,13 @@
       "when": 1795538676625,
       "tag": "0000_create_profiles_table",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795538812957,
+      "tag": "0001_admin_roles",
+      "breakpoints": true
     }
   ]
 }

@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Trash2, UserCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
+import { Navigate } from 'react-router-dom';
 
 interface Profile {
   id: string;
@@ -17,10 +19,11 @@ export default function Usuarios() {
   const { user } = useAuth();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const isAdmin = useIsAdmin();
 
   useEffect(() => {
-    fetchProfiles();
-  }, []);
+    if (isAdmin) fetchProfiles();
+  }, [isAdmin]);
 
   async function fetchProfiles() {
     const { data, error } = await supabase
@@ -43,11 +46,11 @@ export default function Usuarios() {
       return;
     }
 
-    if (!confirm(`Excluir o usuário ${profile.email}?`)) return;
+    if (!confirm(`Excluir definitivamente o usuário ${profile.email} e todos os dados dele?`)) return;
 
-    const { error } = await supabase.from('profiles').delete().eq('id', profile.id);
+    const { data, error } = await supabase.functions.invoke('admin-delete-user', { body: { userId: profile.id } });
 
-    if (error) {
+    if (error || data?.error) {
       toast.error('Erro ao excluir usuário');
       return;
     }
@@ -56,7 +59,9 @@ export default function Usuarios() {
     fetchProfiles();
   }
 
-  if (loading) {
+  if (isAdmin === false) return <Navigate to="/" replace />;
+
+  if (isAdmin === null || loading) {
     return (
       <Layout>
         <div className="text-muted-foreground">Carregando...</div>

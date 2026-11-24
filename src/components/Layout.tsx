@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { 
   LayoutDashboard, 
   Users, 
@@ -31,6 +32,8 @@ const navItems = [
 export function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const { signOut, user } = useAuth();
+  const isAdmin = useIsAdmin();
+  const items = navItems.filter((i) => i.path !== '/usuarios' || isAdmin);
 
   return (
     <div className="min-h-screen bg-background">
@@ -58,7 +61,7 @@ export function Layout({ children }: LayoutProps) {
       <nav className="border-b bg-card/50 sticky top-0 z-10 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="flex items-center gap-1 overflow-x-auto py-2 no-scrollbar">
-            {navItems.map((item) => {
+            {items.map((item) => {
               const isActive = location.pathname === item.path;
               const Icon = item.icon;
 
