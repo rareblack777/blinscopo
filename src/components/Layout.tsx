@@ -10,7 +10,8 @@ import {
   FileText, 
   History, 
   Settings, 
-  LogOut
+  LogOut,
+  UserCircle
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -24,6 +25,7 @@ const navItems = [
   { path: '/modulos', label: 'Módulos', icon: Package },
   { path: '/novo-contrato', label: 'Novo Contrato', icon: FileText },
   { path: '/contratos', label: 'Histórico', icon: History },
+  { path: '/usuarios', label: 'Usuários', icon: UserCircle },
 ];
 
 export function Layout({ children }: LayoutProps) {
